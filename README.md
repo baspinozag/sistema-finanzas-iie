@@ -3,7 +3,7 @@
 Este proyecto es una herramienta para facilitar la rendición de cuentas del Centro de Alumnos de Ingeniería en Informática Empresarial.
 
 ## Funcionalidades
-- Registro de ingresos y egresos
+- Registro de ingresos y salidas de dinero
 - Generación de archivo para la rendición de cuentas
 
 
