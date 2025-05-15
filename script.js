@@ -1,8 +1,9 @@
 const formulario = document.getElementById("formulario");
 const lista = document.getElementById("lista-transacciones");
 const total = document.getElementById("total");
-const botonExportar = document.getElementById("exportar");
 const botonEliminar = document.getElementById("eliminar-todas");
+const botonExportarCSV = document.getElementById("exportar-csv");
+const botonExportarPDF = document.getElementById("exportar-pdf");
 
 let transacciones = [];
 
@@ -11,6 +12,7 @@ formulario.addEventListener("submit", function (e) {
     
     const nombre = document.getElementById("descripcion").value;
     const cantidad = parseFloat(document.getElementById("monto").value);
+    const fecha = document.getElementById("fecha").value;
     const tipo = document.getElementById("tipo").value;
     
     if (nombre === "" || isNaN(cantidad)) {
@@ -19,8 +21,10 @@ formulario.addEventListener("submit", function (e) {
     }
     
     const transaccion = {
-        nombre,
-        cantidad: tipo === "ingreso" ? cantidad : -cantidad,
+        nombre: nombre,
+        cantidad: tipo === "gasto" ? -cantidad : cantidad,
+        fecha: fecha,
+        tipo: tipo
     };
     
     transacciones.push(transaccion);
@@ -34,7 +38,7 @@ function actualizarLista() {
 
     transacciones.forEach((transaccion, index) => {
         const li = document.createElement("li");
-        li.textContent = `${transaccion.nombre}: $${transaccion.cantidad}`;
+        li.textContent = `${transaccion.nombre}: $${transaccion.cantidad}: ${transaccion.fecha}`;
         lista.appendChild(li);
         suma += transaccion.cantidad;
     });
@@ -43,7 +47,7 @@ function actualizarLista() {
 }
 
 function exportarCSV() {
-    const csvContent = "data:text/csv;charset=utf-8," + transacciones.map(e => `${e.nombre},${e.cantidad}`).join("\n");
+    const csvContent = "data:text/csv;charset=utf-8," + transacciones.map(e => `${e.nombre},${e.cantidad},${e.fecha}`).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -53,8 +57,28 @@ function exportarCSV() {
     document.body.removeChild(link);
 }
 
+function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const fechaHora = new Date().toLocaleString();
+    let y = 10;
+    doc.setFontSize(16);
+    doc.text("Rendición de Cuentas", 10, y);
+    y += 10;
+    doc.setFontSize(12);
+    transacciones.forEach(transaccion => {
+        doc.text(`${transaccion.nombre}: $${transaccion.cantidad} : ${transaccion.fecha}`, 10, y);
+        y += 10;
+    });
+    doc.text(`Saldo: $${transacciones.reduce((acc, transaccion) => acc + transaccion.cantidad, 0)}`, 10, y);
+    y += 10;
+    doc.text(`Reporte hecho el ${fechaHora}`, 10, y);
+    doc.save("rendicion_cuentas.pdf");
+}
 
-botonExportar.addEventListener("click", exportarCSV);
+
+botonExportarPDF.addEventListener("click", exportarPDF);
+botonExportarCSV.addEventListener("click", exportarCSV);
 
 botonEliminar.addEventListener("click", () => {
     if (confirm("¿Estás seguro de eliminar todas las transacciones?")) {
