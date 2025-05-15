@@ -60,6 +60,7 @@ function exportarCSV() {
 function exportarPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    const fechaHora = new Date().toLocaleString();
     let y = 10;
     doc.setFontSize(16);
     doc.text("Rendición de Cuentas", 10, y);
@@ -69,7 +70,9 @@ function exportarPDF() {
         doc.text(`${transaccion.nombre}: $${transaccion.cantidad} : ${transaccion.fecha}`, 10, y);
         y += 10;
     });
-    doc.text(`Total: $${transacciones.reduce((acc, transaccion) => acc + transaccion.cantidad, 0)}`, 10, y);
+    doc.text(`Saldo: $${transacciones.reduce((acc, transaccion) => acc + transaccion.cantidad, 0)}`, 10, y);
+    y += 10;
+    doc.text(`Reporte hecho el ${fechaHora}`, 10, y);
     doc.save("rendicion_cuentas.pdf");
 }
 
