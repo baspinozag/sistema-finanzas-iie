@@ -1,8 +1,9 @@
 const formulario = document.getElementById("formulario");
 const lista = document.getElementById("lista-transacciones");
 const total = document.getElementById("total");
-const botonExportar = document.getElementById("exportar");
 const botonEliminar = document.getElementById("eliminar-todas");
+const botonExportarCSV = document.getElementById("exportar-csv");
+const botonExportarPDF = document.getElementById("exportar-pdf");
 
 let transacciones = [];
 
@@ -53,8 +54,25 @@ function exportarCSV() {
     document.body.removeChild(link);
 }
 
+function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+    doc.setFontSize(16);
+    doc.text("Reporte de Transacciones", 10, y);
+    y += 10;
+    doc.setFontSize(12);
+    transacciones.forEach(transaccion => {
+        doc.text(`${transaccion.nombre}: $${transaccion.cantidad}`, 10, y);
+        y += 10;
+    });
+    doc.text(`Total: $${transacciones.reduce((acc, transaccion) => acc + transaccion.cantidad, 0)}`, 10, y);
+    doc.save("reporte_transacciones.pdf");
+}
 
-botonExportar.addEventListener("click", exportarCSV);
+
+botonExportarPDF.addEventListener("click", exportarPDF);
+botonExportarCSV.addEventListener("click", exportarCSV);
 
 botonEliminar.addEventListener("click", () => {
     if (confirm("¿Estás seguro de eliminar todas las transacciones?")) {
